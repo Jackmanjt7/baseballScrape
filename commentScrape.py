@@ -28,8 +28,15 @@ def userScrape(userString):
     end_date = datetime.datetime.now()
     start_date = end_date - datetime.timedelta(days=365*2)
 
+    subreddits = ["baseball", "mlb", "Astros", "azdiamondbacks", "Braves", "Orioles", "RedSox", "Cubs", "Reds", "ColoradoRockies", "ClevelandGuardians", "WhiteSox", "motorcitykitties", "letsgofish", "KCRoyals", "AngelsBaseball", "Dodgers", "Brewers", "MinnesotaTwins", "NewYorkMets", "NYYankees", "oaklandathletics", "Phillies", "Buccos", "Padres", "Mariners", "SFGiants", "Cardinals", "TampaBayRays", "TexasRangers", "TorontoBlueJays", "Nationals"]
+
     # Retrieve the user's comments from the specified time range
-    comments = [comment.body for comment in user.comments.new(limit=None) if comment.created_utc >= start_date.timestamp()]
+    #comments = [comment.body for comment in user.comments.new(limit=None) if comment.created_utc >= start_date.timestamp()]
+
+    comments = []
+    for comment in user.comments.new(limit=None):
+        if comment.subreddit.display_name in subreddits and comment.created_utc >= start_date.timestamp() and comment.created_utc <= end_date.timestamp():
+            comments.append(comment.body)
 
     # Cache the comments in a JSON file
     cache_file = '{}_comments_cache.json'.format(userString)
@@ -46,4 +53,13 @@ def userScrape(userString):
 
 
 userScrape('sharpShootr')
+
+   
+#    comments = []
+#    for subreddit in subreddits:
+#        for comment in user.comments.new(limit=None):
+#            if comment.subreddit.display_name == subreddit and comment.created_utc >= start_date.timestamp() and comment.created_utc <= end_date.timestamp():
+#                comments.append(comment.body)
+
+
 
