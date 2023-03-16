@@ -28,38 +28,35 @@ def userScrape(userString):
     end_date = datetime.datetime.now()
     start_date = end_date - datetime.timedelta(days=365*2)
 
-    subreddits = ["baseball", "mlb", "Astros", "azdiamondbacks", "Braves", "Orioles", "RedSox", "Cubs", "Reds", "ColoradoRockies", "ClevelandGuardians", "WhiteSox", "motorcitykitties", "letsgofish", "KCRoyals", "AngelsBaseball", "Dodgers", "Brewers", "MinnesotaTwins", "NewYorkMets", "NYYankees", "oaklandathletics", "Phillies", "Buccos", "Padres", "Mariners", "SFGiants", "Cardinals", "TampaBayRays", "TexasRangers", "TorontoBlueJays", "Nationals"]
+    subreddits = set(["baseball", "mlb", "Astros", "azdiamondbacks", "Braves", "Orioles", "RedSox", "Cubs", "Reds", "ColoradoRockies", "ClevelandGuardians", "WhiteSox", "motorcitykitties", "letsgofish", "KCRoyals", "AngelsBaseball", "Dodgers", "Brewers", "MinnesotaTwins", "NewYorkMets", "NYYankees", "oaklandathletics", "Phillies", "Buccos", "Padres", "Mariners", "SFGiants", "Cardinals", "TampaBayRays", "TexasRangers", "TorontoBlueJays", "Nationals"])
+
 
     # Retrieve the user's comments from the specified time range
-    #comments = [comment.body for comment in user.comments.new(limit=None) if comment.created_utc >= start_date.timestamp()]
-
-    comments = []
+    user_comments = {}
     for comment in user.comments.new(limit=None):
-        if comment.subreddit.display_name in subreddits and comment.created_utc >= start_date.timestamp() and comment.created_utc <= end_date.timestamp():
-            comments.append(comment.body)
+        subreddit_name = comment.subreddit.display_name
+        if subreddit_name in subreddits and comment.created_utc >= start_date.timestamp() and comment.created_utc <= end_date.timestamp():
+            if subreddit_name not in user_comments:
+                user_comments[subreddit_name] = []
+            user_comments[subreddit_name].append(comment.body)
 
-    # Cache the comments in a JSON file
+    original_cwd = os.getcwd()
+    # Cache the comments in a JSON file    
+    target_directory = 'jsonFiles'
+    os.chdir(target_directory)
     cache_file = '{}_comments_cache.json'.format(userString)
     if os.path.exists(cache_file):
         with open(cache_file, 'r') as f:
             cache = json.load(f)
     else:
         cache = {}
-    cache[user.name] = comments
+    cache[user.name] = user_comments
     with open(cache_file, 'w') as f:
         json.dump(cache, f)
-    
+    os.chdir(original_cwd)
     return cache_file
 
 
-userScrape('sharpShootr')
-
-   
-#    comments = []
-#    for subreddit in subreddits:
-#        for comment in user.comments.new(limit=None):
-#            if comment.subreddit.display_name == subreddit and comment.created_utc >= start_date.timestamp() and comment.created_utc <= end_date.timestamp():
-#                comments.append(comment.body)
 
 
 
