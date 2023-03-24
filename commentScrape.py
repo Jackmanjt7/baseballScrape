@@ -38,7 +38,12 @@ def userScrape(userString):
         if subreddit_name in subreddits and comment.created_utc >= start_date.timestamp() and comment.created_utc <= end_date.timestamp():
             if subreddit_name not in user_comments:
                 user_comments[subreddit_name] = []
-            user_comments[subreddit_name].append(comment.body)
+            comment_data = {
+                "commentID" : comment.id,
+                "commentBody" : comment.body,
+                "Datesubmitted": datetime.datetime.utcfromtimestamp(comment.created_utc).isoformat()
+            }
+            user_comments[subreddit_name].append(comment_data)
 
     original_cwd = os.getcwd()
     # Cache the comments in a JSON file    
@@ -52,11 +57,9 @@ def userScrape(userString):
         cache = {}
     cache[user.name] = user_comments
     with open(cache_file, 'w') as f:
-        json.dump(cache, f)
+        json.dump(cache, f, indent=4)
     os.chdir(original_cwd)
     return cache_file
-
-
 
 
 
